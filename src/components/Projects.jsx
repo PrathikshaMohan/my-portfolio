@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import busbooking from '../assets/dt.jpg';
-import farmersmarket from '../assets/fresh.jpg';
-import student from '../assets/srms.jpg';
-import lms from '../assets/lms.jpg';
-import photography from '../assets/wa.jpg';
+import busbooking from '../assets/dt.JPG';
+import farmersmarket from '../assets/fresh.JPG';
+import student from '../assets/srms.JPG';
+import lms from '../assets/lms.JPG';
+import photography from '../assets/wa.JPG';
 
 const Projects = () => {
   const [activeTab, setActiveTab] = useState('website'); // 'website' or 'application'
