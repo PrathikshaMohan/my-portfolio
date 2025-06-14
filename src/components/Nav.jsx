@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Navbar = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Detect screen resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const navStyle = {
-    backgroundColor: '#fff', // translucent white
+    backgroundColor: '#fff',
     backdropFilter: 'blur(10px)',
-    fontFamily: "'Poppins', sans-serif", // Updated font
+    fontFamily: "'Poppins', sans-serif",
     padding: '1rem 2rem',
     display: 'flex',
     justifyContent: 'space-between',
@@ -17,14 +27,23 @@ const Navbar = () => {
   };
 
   const logoStyle = {
-    color: '#4B0082', // strong violet
+    color: '#4B0082',
     fontSize: '1.8rem',
     fontWeight: 'bold',
   };
 
   const linksStyle = {
-    display: 'flex',
+    display: isMobile ? (menuOpen ? 'flex' : 'none') : 'flex',
+    flexDirection: isMobile ? 'column' : 'row',
     gap: '1.5rem',
+    position: isMobile ? 'absolute' : 'static',
+    top: '60px',
+    right: '2rem',
+    backgroundColor: '#fff',
+    padding: isMobile ? '1rem' : '0',
+    border: isMobile ? '1px solid #ccc' : 'none',
+    borderRadius: '8px',
+    boxShadow: isMobile ? '0 2px 10px rgba(0, 0, 0, 0.1)' : 'none',
   };
 
   const linkBaseStyle = {
@@ -32,6 +51,13 @@ const Navbar = () => {
     textDecoration: 'none',
     fontWeight: '500',
     transition: 'all 0.3s ease',
+  };
+
+  const hamburgerStyle = {
+    display: isMobile ? 'block' : 'none',
+    fontSize: '2rem',
+    cursor: 'pointer',
+    color: '#4B0082',
   };
 
   const handleMouseEnter = (e) => {
@@ -47,6 +73,9 @@ const Navbar = () => {
   return (
     <nav style={navStyle}>
       <div style={logoStyle}>MyPortfolio</div>
+      <div style={hamburgerStyle} onClick={() => setMenuOpen(!menuOpen)}>
+        ☰
+      </div>
       <div style={linksStyle}>
         {['home', 'about', 'skills', 'projects', 'contact'].map((id) => (
           <a
