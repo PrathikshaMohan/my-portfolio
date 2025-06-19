@@ -1,4 +1,6 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 
 const Skills = () => {
   const skills = [
@@ -11,17 +13,27 @@ const Skills = () => {
     { name: 'PHP', level: 75 },
   ];
 
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.2,
+  });
+
   return (
     <section
+      ref={ref}
+      id="skills"
       style={{
         padding: '4rem 2rem',
         backgroundImage: 'linear-gradient(19deg, #FAACA8 0%, #DDD6F3 100%)',
         textAlign: 'center',
         fontFamily: 'Poppins, sans-serif',
+        overflow: 'hidden',
       }}
-      id="skills"
     >
-      <h2
+      <motion.h2
+        initial={{ opacity: 0, y: 30 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
         style={{
           fontSize: '2.5rem',
           color: '#4B0082',
@@ -30,7 +42,7 @@ const Skills = () => {
         }}
       >
         Skills
-      </h2>
+      </motion.h2>
 
       <div
         style={{
@@ -41,15 +53,25 @@ const Skills = () => {
         }}
       >
         {skills.map((skill, index) => (
-          <div
+          <motion.div
             key={index}
+            className="skill-card"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={
+              inView
+                ? {
+                    opacity: 1,
+                    scale: 1,
+                    transition: { delay: index * 0.15, duration: 0.6 },
+                  }
+                : {}
+            }
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               transition: 'transform 0.3s ease',
             }}
-            className="skill-card"
           >
             <div
               className="circle-ring"
@@ -80,7 +102,6 @@ const Skills = () => {
               ></div>
             </div>
 
-            {/* Skill name BELOW the ring */}
             <p
               style={{
                 marginTop: '0.8rem',
@@ -91,11 +112,10 @@ const Skills = () => {
             >
               {skill.name}
             </p>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Hover animation styles */}
       <style>{`
         .skill-card:hover {
           transform: scale(1.05);

@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+
 import busbooking from '../assets/dt.JPG';
 import farmersmarket from '../assets/fresh.JPG';
 import student from '../assets/srms.JPG';
@@ -6,7 +9,8 @@ import lms from '../assets/lms.JPG';
 import photography from '../assets/wa.JPG';
 
 const Projects = () => {
-  const [activeTab, setActiveTab] = useState('website'); // 'website' or 'application'
+  const [activeTab, setActiveTab] = useState('website');
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.2 });
 
   const websiteDesigns = [
     {
@@ -44,7 +48,6 @@ const Projects = () => {
     },
   ];
 
-  // Styles
   const sectionStyle = {
     padding: '4rem 2rem',
     backgroundColor: '#f9f9f9',
@@ -65,16 +68,6 @@ const Projects = () => {
     gap: '2.5rem',
   };
 
-  const cardStyle = {
-    backgroundColor: '#fff',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
-    padding: '1.5rem',
-    textAlign: 'center',
-    transition: 'all 0.3s ease',
-  };
-
   const imageStyle = {
     width: '100%',
     height: '200px',
@@ -83,18 +76,13 @@ const Projects = () => {
     marginBottom: '1.2rem',
   };
 
-  const titleStyle = {
-    color: '#222',
-    fontSize: '1.25rem',
-    marginBottom: '0.6rem',
-    fontWeight: '600',
-  };
-
-  const descStyle = {
-    color: '#555',
-    fontSize: '0.95rem',
-    marginBottom: '1.5rem',
-    lineHeight: '1.6',
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.15, duration: 0.6 },
+    }),
   };
 
   const buttonStyle = {
@@ -107,12 +95,7 @@ const Projects = () => {
     borderRadius: '30px',
     cursor: 'pointer',
     boxShadow: '0 4px 15px rgba(75, 0, 130, 0.3)',
-    transition: 'all 0.3s ease-in-out',
     textDecoration: 'none',
-  };
-
-  const buttonHoverStyle = {
-    backgroundColor: '#4B0082',
   };
 
   const toggleContainerStyle = {
@@ -131,51 +114,83 @@ const Projects = () => {
     border: `2px solid #4B0082`,
     borderRadius: '30px',
     cursor: 'pointer',
+    transform: active ? 'scale(1.05)' : 'scale(1)',
     transition: 'all 0.3s ease-in-out',
   });
 
-  // Render project cards
   const renderProjects = (projectsArray, isApplication = false) =>
     projectsArray.map((proj, index) => (
-      <div
-        key={index}
-        style={cardStyle}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)';
-        }}
-      >
-        <img
-          src={proj.image}
-          alt={proj.title}
-          style={{
-            ...imageStyle,
-            ...(isApplication && { maxWidth: '400px', height: '250px', margin: '0 auto' }),
-          }}
-        />
-        <h3 style={titleStyle}>{proj.title}</h3>
-        <p style={descStyle}>{proj.description}</p>
-        {proj.link && (
-          <a
-            href={proj.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={buttonStyle}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = buttonHoverStyle.backgroundColor)}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = buttonStyle.backgroundColor)}
-          >
-            View Project
-          </a>
-        )}
-      </div>
+      <motion.div
+  key={index}
+  className="project-card"
+  custom={index}
+  initial="hidden"
+  animate={inView ? 'visible' : 'hidden'}
+  variants={cardVariants}
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between', // This pushes the button to the bottom
+    backgroundColor: '#fff',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+    padding: '1.5rem',
+    textAlign: 'center',
+    transition: 'all 0.3s ease',
+    minHeight: '460px', // Force all cards to be same height
+  }}
+  whileHover={{
+    scale: 1.04,
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)',
+  }}
+>
+  <div>
+    <img
+      src={proj.image}
+      alt={proj.title}
+      style={{
+        ...imageStyle,
+        ...(isApplication && { maxWidth: '400px', height: '250px', margin: '0 auto' }),
+      }}
+    />
+    <h3 style={{
+      fontSize: '1.25rem',
+      fontWeight: '600',
+      color: '#222',
+      marginBottom: '0.6rem',
+    }}>
+      {proj.title}
+    </h3>
+    <p style={{
+      color: '#555',
+      fontSize: '0.95rem',
+      lineHeight: '1.6',
+      marginBottom: '1.5rem',
+      minHeight: '60px', // Equal space for description
+    }}>
+      {proj.description}
+    </p>
+  </div>
+
+  <a
+  href={proj.link}
+  target="_blank"
+  rel="noopener noreferrer"
+  style={{
+    ...buttonStyle,
+    ...(isApplication && { width: 'fit-content', margin: '0 auto' }),
+  }}
+>
+  View Project
+</a>
+
+</motion.div>
+
     ));
 
   return (
-    <section style={sectionStyle} id='projects'>
+    <section ref={ref} style={sectionStyle} id="projects">
       <div style={toggleContainerStyle}>
         <button
           style={toggleButtonStyle(activeTab === 'website')}
@@ -191,9 +206,14 @@ const Projects = () => {
         </button>
       </div>
 
-      <h2 style={headingStyle}>
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.7 }}
+        style={headingStyle}
+      >
         {activeTab === 'website' ? 'Website Designs' : 'Application Designs'}
-      </h2>
+      </motion.h2>
 
       <div style={gridStyle}>
         {activeTab === 'website'
